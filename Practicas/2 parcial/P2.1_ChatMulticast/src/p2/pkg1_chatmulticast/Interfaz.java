@@ -27,7 +27,7 @@ public class Interfaz extends Thread {
     private JLabel nameL;
     private JTextField nameT;
     private JButton nameB;
-    private JTextArea chatArea;
+    private JTextPane chatArea;
     private JTextField message;
     private JButton enviar;
 
@@ -51,11 +51,11 @@ public class Interfaz extends Thread {
         this.nameB = nameB;
     }
 
-    public JTextArea getChatArea() {
+    public JTextPane getChatArea() {
         return chatArea;
     }
 
-    public void setChatArea(JTextArea chatArea) {
+    public void setChatArea(JTextPane chatArea) {
         this.chatArea = chatArea;
     }
 
@@ -100,12 +100,13 @@ public class Interfaz extends Thread {
         contentPane.add(nameT);
 
         nameB = new JButton("Conectar");
-        nameB.setBounds(210, 25, 80, 25);
+        nameB.setBounds(210, 25, 90, 25);
         nameB.addActionListener(evento);
         contentPane.add(nameB);
 
-        chatArea = new JTextArea();
+        chatArea = new JTextPane();
         chatArea.setBounds(40, 60, 300, 300);
+        chatArea.setContentType("text/html");
         contentPane.add(chatArea);
 
         message = new JTextField();
@@ -126,6 +127,8 @@ public class Interfaz extends Thread {
             ChatMulticast.chatListen(nameT, chatArea);
         } catch (IOException ex) {
             Logger.getLogger(Interfaz.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Interfaz.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -136,7 +139,7 @@ public class Interfaz extends Thread {
             try {
                 Object botonPulsado = e.getSource();
                 if (botonPulsado == nameB) {
-                    ChatMulticast.chatWrite(nameT, message);
+                    ChatMulticast.chatConect(nameT, message);
                 }
                 if (botonPulsado == enviar) {
                     ChatMulticast.chatWrite(nameT, message);
