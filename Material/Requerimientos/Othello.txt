@@ -1,0 +1,3 @@
+Hacer un servidor que atienda solo a 4 clientes
+cuando hay 2 clientes se empieza el juego
+Se envian señales para los turnos y se debe de reflejar en los 2 tableros

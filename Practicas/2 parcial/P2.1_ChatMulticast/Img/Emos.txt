@@ -1,0 +1,5 @@
+;) = imagen_guino.jpg
+:o = imagen_beso.jpg
+:S = imagen_gesto.jpg
+_Perro_ = perro.gif
+_Homero_ = http://tusimagenesde.com/wp-content/uploads/2015/01/gifs-animados-5.gif
