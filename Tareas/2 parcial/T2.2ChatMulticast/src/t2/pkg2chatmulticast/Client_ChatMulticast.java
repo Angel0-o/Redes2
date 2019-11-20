@@ -67,7 +67,9 @@ public class Client_ChatMulticast {
                         DatagramChannel ch = (DatagramChannel) k.channel();
                         System.out.println("Escribe un mensaje");
                         msg = teclado.readLine();
+                        System.out.println(msg);
                         b.clear();
+                        b.putInt(msg.length());
                         b.put(msg.getBytes());
                         b.flip();
                         ch.send(b,remote);

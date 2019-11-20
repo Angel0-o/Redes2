@@ -48,8 +48,9 @@ public class Server_ChatMulticast {
             InetAddress group = InetAddress.getByName(host);
             s.join(group, ni);
             s.socket().bind(dir);
-            ByteBuffer b = ByteBuffer.allocate(50);
+            //ByteBuffer b = ByteBuffer.allocate(50);
             String msg;
+            int tam;
             System.out.println("Servidor listo...\nEsperando datagramas...");
             while (true) 
             {
@@ -62,10 +63,12 @@ public class Server_ChatMulticast {
                     if (k.isReadable()) 
                     {
                         DatagramChannel ch = (DatagramChannel) k.channel();
-                        b.clear();
+                        ByteBuffer b = ByteBuffer.allocate(20);
                         SocketAddress emisor = ch.receive(b);
-                        msg = new String(b.array(), 0, 20);
                         b.flip();
+                        tam = b.getInt();
+                        System.out.println("Tamaño: " + tam);
+                        msg = new String(b.array(),0,tam);
                         InetSocketAddress d = (InetSocketAddress) emisor;
                         System.out.println("Datagrama recibido desde " + d.getAddress() + ": " + d.getPort());
                         System.out.println("Dato: " + msg);
