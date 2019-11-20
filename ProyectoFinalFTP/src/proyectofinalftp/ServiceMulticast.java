@@ -28,7 +28,7 @@ import javax.swing.JTextPane;
 public class ServiceMulticast {
     
     public static void serviceListen(JTextField name, JTextPane chatArea) throws IOException, InterruptedException {
-        InetSocketAddress remote = new InetSocketAddress("230.1.1.1", 2000);
+        InetSocketAddress remote = new InetSocketAddress("228.1.1.1", 2000);
         //Interfaz de red
         NetworkInterface netInterface = NetworkInterface.getByName("wlan3");//eth1 | wlan1
         //Creacion y configuracion del canal
@@ -41,7 +41,7 @@ public class ServiceMulticast {
         Selector sel = Selector.open();
         channel.register(sel, SelectionKey.OP_READ);
         //Nos unismos al grupo
-        InetAddress group = InetAddress.getByName("230.1.1.1");
+        InetAddress group = InetAddress.getByName("228.1.1.1");
         channel.join(group, netInterface);
         //Ligamos el canal para que escuche en un puerto determinado
         channel.socket().bind(new InetSocketAddress(2000));
@@ -83,6 +83,56 @@ public class ServiceMulticast {
                         continue;
                     }
                 }
+            }
+        }
+    }
+    
+        public static void serviceWrite(JTextField name, JTextField texto) throws IOException {
+        InetSocketAddress remote = new InetSocketAddress("228.1.1.1", 2000);
+        //Interfaz de red
+        NetworkInterface netInterface = NetworkInterface.getByName("wlan3");//eth1 | wlan1
+        //Creacion y configuracion del canal
+        DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
+        channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, netInterface);
+        //Configuramos el canal para que sea no bloqueante
+        channel.configureBlocking(false);
+        //Abrimos el selector y lo configuramos para lectura y escritura
+        Selector sel = Selector.open();
+        channel.register(sel, SelectionKey.OP_WRITE);
+        //Nos unismos al grupo
+        InetAddress group = InetAddress.getByName("230.1.1.1");
+        channel.join(group, netInterface);
+        //Ligamos el canal para que escuche en un puerto determinado
+        ByteBuffer b;
+
+        String aux;
+        sel.select();
+        Iterator<SelectionKey> it = sel.selectedKeys().iterator();
+        while (it.hasNext()) {
+            SelectionKey k = it.next();
+            it.remove();
+            if (k.isWritable()) {
+                System.out.println("Escritura");
+                DatagramChannel ch = (DatagramChannel) k.channel();
+                aux = "2" + name.getText() + ": " + texto.getText();
+                // Envio del tamaño del datagrama
+                int lon = aux.length();
+                b = ByteBuffer.allocate(4);
+                b.clear();
+                b.putInt(lon);
+                b.flip();
+                ch.send(b, remote);
+                System.out.println("Enviando longitud: " + lon);
+                //Envio del mensaje
+                b = ByteBuffer.allocate(lon);
+                b.clear();
+                b.put(aux.getBytes());
+                b.flip();
+                ch.send(b, remote);
+                System.out.println("Enviando mensaje: " + aux);
+                aux = "";
+                continue;
             }
         }
     }
