@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -34,8 +36,7 @@ public class Ventana extends Thread{
     private JTextField textF;
     private JButton buscarB;
     private JTextPane logArea;
-    private JTextField message;
-    private JButton enviar;
+    private int port;
     
     public Ventana()
     {
@@ -47,6 +48,7 @@ public class Ventana extends Thread{
         fram.setSize(400, 520);
         fram.setLocationRelativeTo(null);
         fram.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        port = Integer.parseInt(portTitle);
         
         //Creando carpeta asociada al puerto
         File directorio = new File("C:/FTP_R2/" + portTitle);
@@ -90,15 +92,6 @@ public class Ventana extends Thread{
         logArea.setContentType("text/html");
         contentPane.add(logArea);
 
-//        message = new JTextField();
-//        message.setBounds(40, 370, 200, 25);
-//        contentPane.add(message);
-//
-//        enviar = new JButton("Enviar");
-//        enviar.setBounds(250, 370, 80, 25);
-//        enviar.addActionListener(evento);
-//        contentPane.add(enviar);
-
         fram.setVisible(true);
     }
     
@@ -110,20 +103,24 @@ public class Ventana extends Thread{
             if (botonPulsado == buscarB) {
 //                    ChatMulticast.chatConect(textF, message);
             }
-            if (botonPulsado == enviar) {
-//                    ChatMulticast.chatWrite(textF, message);
-            }
         }
     }
     
     @Override
     public void run() 
     {
+        try {
+            ServiceMulticast.serviceListen(nodoA, nodoS, lista);
+        } catch (IOException | InterruptedException ex) {
+            Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         //Creando interfaz
         Ventana ventana = new Ventana();
         ventana.start();
+        //Anunciando el puerto
+        ServiceMulticast.serviceWrite(ventana.port);
     }
 }
