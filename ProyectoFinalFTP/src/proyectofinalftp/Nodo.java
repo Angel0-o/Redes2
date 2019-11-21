@@ -48,70 +48,92 @@ public class Nodo {
     public Nodo(String ip, int port) {
         Port = port;
         IP = ip;
-        ID = Integer.toString(port) + "_" + ip.substring(0, 3);
+        ID = Integer.toString(port) + "_" + ip.substring(0, 9);
+    }
+}
+
+class ListaNodos {
+
+    private LinkedList<Nodo> listaObjetos;
+
+//        public ListaNodos(int lon, Nodo[] noLis) {
+//            for (int i = 0; i < lon; i++) {
+//                listaObjetos.add(noLis[i]);
+//            }
+//        }
+    public ListaNodos() {
+        listaObjetos = new LinkedList();
     }
 
-    class ListaNodos {
-
-        private LinkedList<Nodo> listaObjetos = new LinkedList();
-
-        public ListaNodos(int lon, Nodo[] noLis) {
-            for (int i = 0; i < lon; i++) {
-                listaObjetos.add(noLis[i]);
-            }
-        }
-
-        public ListaNodos() {
-
-        }
-
-        public void insertOrder(Nodo node) {
-            if (!listaObjetos.isEmpty()) {
-                if (!listaObjetos.contains(node)) {
-                    for (int i = 0; i < listaObjetos.size(); i++) {
-                        if (node.getPort() < listaObjetos.get(i).getPort()) {
-                            listaObjetos.add(i, node);
-                        }
-                        if ((i + 1 == listaObjetos.size()) && node.getPort() > listaObjetos.get(i).getPort()) {
-                            listaObjetos.addLast(node);
-                        }
+    public void insertOrder(Nodo node) {
+        if (!listaObjetos.isEmpty()) {
+            if (!listaObjetos.contains(node)) {
+                for (int i = 0; i < listaObjetos.size(); i++) {
+                    if (node.getPort() < listaObjetos.get(i).getPort()) {
+                        listaObjetos.add(i, node);
+                    }
+                    if ((i + 1 == listaObjetos.size()) && node.getPort() > listaObjetos.get(i).getPort()) {
+                        listaObjetos.addLast(node);
                     }
                 }
-            } else {
-                listaObjetos.add(node);
             }
+        } else {
+            listaObjetos.add(node);
         }
+    }
 
-        public Nodo getNext(Nodo node) {
-            int index = listaObjetos.indexOf(node);
-            if(index != -1)
-                return listaObjetos.get(index + 1);
-            else if(index == listaObjetos.size() - 1)
-                return listaObjetos.getFirst();
-            else
-                return listaObjetos.get(index);
+    public Nodo getNext(Nodo node) {
+        int index = listaObjetos.indexOf(node);
+        System.out.println("lon: " + listaObjetos.size() + "\t index: " + index);
+        if(index == -1)
+            return node;
+        if(listaObjetos.size() == 1)
+            return listaObjetos.get(index);
+        if (index != -1) {
+            return listaObjetos.get(index + 1);
+        }else if (index == listaObjetos.size() - 1) {
+            return listaObjetos.getFirst();
+        } else {
+            return listaObjetos.get(index);
         }
-        
-        public Nodo getPrev(Nodo node) {
-            int index = listaObjetos.indexOf(node);
-            if(index != -1)
-                return listaObjetos.get(index - 1);
-            else if(index == 0)
-                return listaObjetos.getLast();
-            else
-                return listaObjetos.get(index);
+    }
+
+    public Nodo getPrev(Nodo node) {
+        int index = listaObjetos.indexOf(node);
+        System.out.println("lon: " + listaObjetos.size() + "\t index: " + index);
+        if(index == -1)
+            return node;
+        if(listaObjetos.size() == 1)
+            return listaObjetos.get(index);
+        if (index != -1) {
+            return listaObjetos.get(index - 1);
+        } else if (index == 0) {
+            return listaObjetos.getLast();
+        } else {
+            return listaObjetos.get(index);
         }
-        
-        public String[] getIDs(String[] listID){
-            Iterator nodeIterator = listaObjetos.iterator();
-            int i = 0;
-            Nodo aux;
-            while (nodeIterator.hasNext()) {
-                aux = (Nodo) nodeIterator.next();
-                listID[i] = aux.getID();
-                i++;
-            }
-            return listID;
+    }
+
+    public String[] getIDs(String[] listID) {
+        listID = new String[listaObjetos.size()];
+        Iterator nodeIterator = listaObjetos.iterator();
+        int i = 0;
+        Nodo aux;
+        while (nodeIterator.hasNext()) {
+            aux = (Nodo) nodeIterator.next();
+            listID[i] = aux.getID();
+            i++;
+        }
+        return listID;
+    }
+    
+    public void imprime(ListaNodos lista){
+        Iterator nodeIterator = listaObjetos.iterator();
+        Nodo aux;
+        System.out.println("Longitud: " + listaObjetos.size());
+        while (nodeIterator.hasNext()) {
+            aux = (Nodo) nodeIterator.next();
+            System.out.println("ID: " + aux.getID() + "\tPort: " + aux.getPort() + "\tIP: " + aux.getIP());
         }
     }
 }

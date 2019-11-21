@@ -31,7 +31,7 @@ public class ServiceMulticast {
     public static void serviceListen(JLabel nodoA, JLabel nodoS, JComboBox lista) throws IOException, InterruptedException {
         InetSocketAddress remote = new InetSocketAddress("228.1.1.1", 2000);
         //Interfaz de red
-        NetworkInterface netInterface = NetworkInterface.getByName("wlan1");//eth1 | wlan1
+        NetworkInterface netInterface = NetworkInterface.getByName("wlan3");//eth1 | wlan1
         //Creacion y configuracion del canal
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
         channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -49,7 +49,7 @@ public class ServiceMulticast {
         ByteBuffer b;
         int port;
         Nodo next,prev;
-        Nodo.ListaNodos nList = null;
+        ListaNodos nList = new ListaNodos();
         String[] IDs = null;
         while (true) {
             sel.select();
@@ -66,8 +66,7 @@ public class ServiceMulticast {
                     b.flip();
                     port = b.getInt();
                     //Creacion de nodos y lista
-                    System.out.println(ch.getRemoteAddress());
-                    Nodo n1 = new Nodo(ch.getRemoteAddress().toString(), port);
+                    Nodo n1 = new Nodo(emisor.toString(), port);
                     nList.insertOrder(n1);
                     next = nList.getNext(n1);
                     prev = nList.getPrev(n1);
@@ -75,6 +74,7 @@ public class ServiceMulticast {
                     nodoS.setText("Next: " + next.getPort());
                     IDs = nList.getIDs(IDs);
                     lista.setModel(new DefaultComboBoxModel(IDs));
+                    nList.imprime(nList);
                     System.out.println("Conectado: " + port);
                     continue;
                 }
@@ -85,7 +85,7 @@ public class ServiceMulticast {
     public static void serviceWrite(int port) throws IOException, InterruptedException {
         InetSocketAddress remote = new InetSocketAddress("228.1.1.1", 2000);
         //Interfaz de red
-        NetworkInterface netInterface = NetworkInterface.getByName("wlan1");//eth1 | wlan1 |wlan3
+        NetworkInterface netInterface = NetworkInterface.getByName("wlan3");//eth1 | wlan1 |wlan3
         //Creacion y configuracion del canal
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
         channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);

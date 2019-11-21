@@ -75,7 +75,7 @@ public class Ventana extends Thread{
         contentPane.add(nodoS);
         
         lista = new JComboBox();
-        lista.setBounds(220, 25, 80, 25);
+        lista.setBounds(220, 25, 100, 25);
         contentPane.add(lista);
 
         textF = new JTextField();
