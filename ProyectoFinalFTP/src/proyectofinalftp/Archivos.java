@@ -6,11 +6,12 @@
 package proyectofinalftp;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 /**
  *
  * @author Angel
  */
 public interface Archivos extends Remote{
-    
+    boolean searchFile (String fileF) throws RemoteException;
 }

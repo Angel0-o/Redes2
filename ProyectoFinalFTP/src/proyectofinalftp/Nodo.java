@@ -84,34 +84,38 @@ class ListaNodos {
 
     public Nodo getNext(Nodo node) {
         int index = listaObjetos.indexOf(node);
-        System.out.println("lon: " + listaObjetos.size() + "\t index: " + index);
-        if(index == -1)
+        int indexF = index +1;
+        if(index == -1 | listaObjetos.size() == 1)
             return node;
-        if(listaObjetos.size() == 1)
-            return listaObjetos.get(index);
-        if (index != -1) {
-            return listaObjetos.get(index + 1);
-        }else if (index == listaObjetos.size() - 1) {
-            return listaObjetos.getFirst();
-        } else {
-            return listaObjetos.get(index);
+        if(listaObjetos.size() > 1)
+        {
+            if (indexF >= listaObjetos.size()) {
+                System.out.println("Next --> if: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: "+ listaObjetos.getFirst());
+                return listaObjetos.getFirst();
+            }else {
+                System.out.println("Next --> else: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: "+ listaObjetos.get(indexF));
+                return listaObjetos.get(indexF);
+            }
         }
+        return listaObjetos.get(indexF);
     }
 
     public Nodo getPrev(Nodo node) {
         int index = listaObjetos.indexOf(node);
-        System.out.println("lon: " + listaObjetos.size() + "\t index: " + index);
-        if(index == -1)
+        int indexF = index -1;
+        if (index == -1 | listaObjetos.size() == 1) {
             return node;
-        if(listaObjetos.size() == 1)
-            return listaObjetos.get(index);
-        if (index != -1) {
-            return listaObjetos.get(index - 1);
-        } else if (index == 0) {
-            return listaObjetos.getLast();
-        } else {
-            return listaObjetos.get(index);
         }
+        if (listaObjetos.size() > 1) {
+            if (indexF < 0) {
+                System.out.println("Prev --> if: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: "+ listaObjetos.getLast());
+                return listaObjetos.getLast();
+            } else {
+                System.out.println("Prev --> else: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: "+ listaObjetos.get(indexF));
+                return listaObjetos.get(indexF);
+            }
+        }
+        return listaObjetos.get(indexF);
     }
 
     public String[] getIDs(String[] listID) {
