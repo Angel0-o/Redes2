@@ -31,7 +31,7 @@ public class ServiceMulticast {
     public static void serviceListen(JLabel nodoA, JLabel nodoS, JComboBox lista) throws IOException, InterruptedException {
         InetSocketAddress remote = new InetSocketAddress("228.1.1.1", 2000);
         //Interfaz de red
-        NetworkInterface netInterface = NetworkInterface.getByName("wlan1");//eth1 | wlan1
+        NetworkInterface netInterface = NetworkInterface.getByName("eth2");//eth2 | wlan1
         //Creacion y configuracion del canal
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
         channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -48,8 +48,9 @@ public class ServiceMulticast {
         channel.socket().bind(new InetSocketAddress(2000));
         ByteBuffer b;
         int port;
-        Nodo next,prev;
+        int next, prev;
         ListaNodos nList = new ListaNodos();
+        ArrayNodos listPort = new ArrayNodos();
         String[] IDs = null;
         while (true) {
             sel.select();
@@ -67,13 +68,17 @@ public class ServiceMulticast {
                     port = b.getInt();
                     //Creacion de nodos y lista
                     Nodo n1 = new Nodo(emisor.toString(), port);
-                    nList.insertOrder(n1);
-                    next = nList.getNext(n1);
-                    prev = nList.getPrev(n1);
-                    System.out.println("Prev: " + prev.getPort());
-                    System.out.println("Next: " + next.getPort());
-                    nodoA.setText("Prev: " + prev.getPort());
-                    nodoS.setText("Next: " + next.getPort());
+                    nList.agrega(n1);
+//                    nList.insertOrder(n1);
+//                    nList.imprime(nList);
+                    listPort.agrega(port);
+                    listPort.ordena();
+                    next = listPort.getNext(port);
+                    prev = listPort.getPrev(port);
+                    System.out.println("Prev: " + prev);
+                    System.out.println("Next: " + next);
+                    nodoA.setText("Prev: " + prev);
+                    nodoS.setText("Next: " + next);
                     IDs = nList.getIDs(IDs);
                     lista.setModel(new DefaultComboBoxModel(IDs));
                     nList.imprime(nList);
@@ -87,7 +92,7 @@ public class ServiceMulticast {
     public static void serviceWrite(int port) throws IOException, InterruptedException {
         InetSocketAddress remote = new InetSocketAddress("228.1.1.1", 2000);
         //Interfaz de red
-        NetworkInterface netInterface = NetworkInterface.getByName("wlan1");//eth1 | wlan1 |wlan3
+        NetworkInterface netInterface = NetworkInterface.getByName("eth2");//eth2 | wlan1 |wlan3
         //Creacion y configuracion del canal
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
         channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
