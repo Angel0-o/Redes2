@@ -61,6 +61,8 @@ public class Ventana extends Thread{
                 System.out.println("Error al crear directorio");
             }
         }
+        
+        
 
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         fram.setContentPane(contentPane);
@@ -103,7 +105,7 @@ public class Ventana extends Thread{
         public void actionPerformed(ActionEvent e) {
             Object botonPulsado = e.getSource();
             if (botonPulsado == buscarB) {
-//                    ChatMulticast.chatConect(textF, message);
+                    ServiceMulticast.service_CliRMI(path, Integer.parseInt(nodoS.getText()), textF.getText());
             }
         }
     }
