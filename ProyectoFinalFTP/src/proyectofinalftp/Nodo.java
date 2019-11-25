@@ -1,15 +1,10 @@
+package proyectofinalftp;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package proyectofinalftp;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-
 /**
  *
  * @author Angel
@@ -50,159 +45,161 @@ public class Nodo {
     public Nodo(String ip, int port) {
         Port = port;
         IP = ip;
-        ID = Integer.toString(port) + "_" + ip.substring(9, 12);
+        ID = Integer.toString(port) + "_" + ip.substring(5, 9);
+    }
+
+    public boolean equals(Nodo node) {
+        return node.getPort() == Port;
     }
 }
 
 class ListaNodos {
 
-    private LinkedList<Nodo> listaObjetos;
+    private Nodo[] lista;
+    int first;
+    int last;
+    int pointer;
+    int size;
 
-//        public ListaNodos(int lon, Nodo[] noLis) {
-//            for (int i = 0; i < lon; i++) {
-//                listaObjetos.add(noLis[i]);
-//            }
-//        }
     public ListaNodos() {
-        listaObjetos = new LinkedList();
+        lista = new Nodo[20];
+        first = 0;
     }
 
-    public void agrega(Nodo node) {
-        if(!listaObjetos.contains(node))
-            listaObjetos.add(node);
+    public Nodo[] getLista() {
+        return lista;
     }
 
-    public void insertOrder(Nodo node) {
-        if (!listaObjetos.isEmpty()) {
-            if (!listaObjetos.contains(node)) {
-                for (int i = 0; i < listaObjetos.size(); i++) {
-                    if (node.getPort() < listaObjetos.get(i).getPort()) {
-                        listaObjetos.add(i, node);
-                    }
-                    if ((i + 1 == listaObjetos.size()) && node.getPort() > listaObjetos.get(i).getPort()) {
-                        listaObjetos.addLast(node);
-                    }
-                }
+    public void setLista(Nodo[] lista) {
+        this.lista = lista;
+    }
+
+    public boolean isEmpty() {
+        for (Nodo element : lista) {
+            if (element != null) {
+                return false;
             }
+        }
+        return true;
+    }
+
+    public void add(Nodo node) {
+        if (isEmpty()) {
+            lista[0] = node;
+            pointer = 0;
+            size = 1;
         } else {
-            listaObjetos.add(node);
+            if (!contains(node)) {
+                pointer += 1;
+                last = pointer;
+                size = last + 1;
+                lista[pointer] = node;
+            } else {
+                System.out.println("Nodo existente");
+            }
+        }
+    }
+
+    public Nodo get(int x) {
+        Nodo aux = new Nodo("100.0.0.0", 0);
+        if (lista[x] != null) {
+            return lista[x];
+        } else {
+            System.out.println("ListaNodos.get()\tIndex null");
+            return aux;
+        }
+    }
+
+    public boolean contains(Nodo node) {
+        for (int i = 0; i < size; i++) {
+            if (lista[i].equals(node)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void quicksort(int izq, int der) {
+        int i = izq;
+        int j = der;
+        int pivote = lista[(i + j) / 2].getPort();
+        do {
+            while (lista[i].getPort() < pivote) {
+                i++;
+            }
+            while (lista[j].getPort() > pivote) {
+                j--;
+            }
+            if (i <= j) {
+                Nodo aux = lista[i];
+                lista[i] = lista[j];
+                lista[j] = aux;
+                i++;
+                j--;
+            }
+        } while (i <= j);
+        if (izq < j) {
+            quicksort(izq, j);
+        }
+        if (i < der) {
+            quicksort(i, der);
         }
     }
 
     public Nodo getNext(Nodo node) {
-        int index = listaObjetos.indexOf(node.getPort());
-        int indexF = index + 1;
-        if (index == -1 | listaObjetos.size() == 1) {
-            System.out.println("Not Found: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: " + listaObjetos.getFirst().getPort());
-            return node;
-        }
-        if (listaObjetos.size() > 1) {
-            if (indexF >= listaObjetos.size()) {
-                System.out.println("Next --> if: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: " + listaObjetos.getFirst().getPort());
-                return listaObjetos.getFirst();
-            } else {
-                System.out.println("Next --> else: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: " + listaObjetos.get(indexF).getPort());
-                return listaObjetos.get(indexF);
+        if (contains(node)) {
+            if (size == 1) {
+                return node;
+            }
+            for (int i = 0; i < size; i++) {
+                if (lista[i].equals(node)) {
+                    if (i == last) {
+                        return lista[first];
+                    } else {
+                        return lista[i + 1];
+                    }
+                }
             }
         }
-        return listaObjetos.get(indexF);
+        System.out.println("Nodo no encontrado");
+        return node;
     }
 
     public Nodo getPrev(Nodo node) {
-        int index = listaObjetos.indexOf(node);
-        int indexF = index - 1;
-        if (index == -1 | listaObjetos.size() == 1) {
-            return node;
-        }
-        if (listaObjetos.size() > 1) {
-            if (indexF < 0) {
-                System.out.println("Prev --> if: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: " + listaObjetos.getLast().getPort());
-                return listaObjetos.getLast();
-            } else {
-                System.out.println("Prev --> else: lon: " + listaObjetos.size() + "\t index: " + indexF + "\tNodo: " + listaObjetos.get(indexF).getPort());
-                return listaObjetos.get(indexF);
+        if (contains(node)) {
+            if (size == 1) {
+                return node;
+            }
+            for (int i = 0; i < size; i++) {
+                if (lista[i].equals(node)) {
+                    if (i == first) {
+                        return lista[last];
+                    } else {
+                        return lista[i - 1];
+                    }
+                }
             }
         }
-        return listaObjetos.get(indexF);
-    }
-
-    public String[] getIDs(String[] listID) {
-        listID = new String[listaObjetos.size()];
-        Iterator nodeIterator = listaObjetos.iterator();
-        int i = 0;
-        Nodo aux;
-        while (nodeIterator.hasNext()) {
-            aux = (Nodo) nodeIterator.next();
-            listID[i] = aux.getID();
-            i++;
-        }
-        return listID;
-    }
-
-    public void imprime(ListaNodos lista) {
-        Iterator nodeIterator = listaObjetos.iterator();
-        Nodo aux;
-        System.out.println("Longitud: " + listaObjetos.size());
-        while (nodeIterator.hasNext()) {
-            aux = (Nodo) nodeIterator.next();
-            System.out.println("ID: " + aux.getID() + "\tPort: " + aux.getPort() + "\tIP: " + aux.getIP());
-        }
-    }
-}
-
-class ArrayNodos {
-
-    private ArrayList<Integer> listaN;
-
-    public ArrayNodos() {
-        listaN = new ArrayList<>();
-    }
-
-    public void ordena() {
-        Collections.sort(listaN);
-    }
-
-    public void agrega(int port) {
-        if(!listaN.contains(port))
-            listaN.add(port);
-    }
-
-    public int getNext(int port) {
-        int index = listaN.indexOf(port);
-        int indexF = index + 1;
-        if (index == -1 | listaN.size() == 1) {
-            System.out.println("Not Found: lon: " + listaN.size() + "\t index: " + indexF + "\tNodo: " + port + " ->" + listaN.get(index));
-            return listaN.get(index);
-        }
-        if (listaN.size() > 1) {
-            if (indexF >= listaN.size()) {
-                System.out.println("Next --> if: lon: " + listaN.size() + "\t index: " + indexF + "\tNodo: " + port + " ->" + listaN.get(0));
-                return listaN.get(0);
-            } else {
-                System.out.println("Next --> else: lon: " + listaN.size() + "\t index: " + indexF + "\tNodo: " + port + " ->" + listaN.get(indexF));
-                return listaN.get(indexF);
-            }
-        }
-        return listaN.get(indexF);
+        System.out.println("Nodo no encontrado");
+        return node;
     }
     
-    public int getPrev(int port) {
-        int index = listaN.indexOf(port);
-        int indexF = index - 1;
-        if (index == -1 | listaN.size() == 1) {
-            System.out.println("Not Found: lon: " + listaN.size() + "\t index: " + indexF + "\tNodo: " + port + " ->"  + listaN.get(index));
-            return listaN.get(index);
+    public String[] getIDS(){
+        String[] aux = null;
+        for (int i = 0; i < size; i++) {
+            aux[i] = lista[i].getID();
         }
-        if (listaN.size() > 1) {
-            if (indexF < 0) {
-                System.out.println("Prev --> if: lon: " + listaN.size() + "\t index: " + indexF + "\tNodo: " + port + " ->"  + listaN.get(listaN.size() - 1));
-                return listaN.get(listaN.size() - 1);
-            } else {
-                System.out.println("Prev --> else: lon: " + listaN.size() + "\t index: " + indexF + "\tNodo: " + port + " ->"  + listaN.get(indexF));
-                return listaN.get(indexF);
-            }
-        }
-        return listaN.get(indexF);
+        return aux;
     }
 
+    public void printList() {
+        System.out.println("Longitud: " + size);
+        for (int i = 0; i < size; i++) {
+            System.out.println("\tID: " + lista[i].getID() + "\tPort: " + lista[i].getPort() + "\tIP: " + lista[i].getIP());
+        }
+    }
+
+    public void printNode(Nodo node) {
+        System.out.println("\tID: " + node.getID() + "\tPort: " + node.getPort() + "\tIP: " + node.getIP());
+    }
 }

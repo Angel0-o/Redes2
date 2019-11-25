@@ -37,6 +37,7 @@ public class Ventana extends Thread{
     private JButton buscarB;
     private JTextPane logArea;
     private int port;
+    private String path;
     
     public Ventana()
     {
@@ -51,7 +52,8 @@ public class Ventana extends Thread{
         port = Integer.parseInt(portTitle);
         
         //Creando carpeta asociada al puerto
-        File directorio = new File("C:/FTP_R2/" + portTitle);
+        path = "C:/FTP_R2/" + portTitle;
+        File directorio = new File(path);
         if (!directorio.exists()) {
             if (directorio.mkdirs()) {
                 System.out.println("Directorio creado");
@@ -110,7 +112,7 @@ public class Ventana extends Thread{
     public void run() 
     {
         try {
-            ServiceMulticast.serviceListen(nodoA, nodoS, lista);
+            ServiceMulticast.serviceListen(nodoA, nodoS, lista, port);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
         }
