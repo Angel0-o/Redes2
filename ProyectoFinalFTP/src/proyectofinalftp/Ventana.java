@@ -27,7 +27,8 @@ import javax.swing.border.EmptyBorder;
  *
  * @author Angel
  */
-public class Ventana extends Thread{
+public class Ventana extends Thread {
+
     private final JFrame fram;
     private final JPanel contentPane;
     private JLabel nodoA;
@@ -37,12 +38,14 @@ public class Ventana extends Thread{
     private JButton buscarB;
     private JTextPane logArea;
     private int port;
+    private int portNext;
+    private String host;
     private String path;
-    
-    public Ventana()
-    {
-        String portTitle = JOptionPane.showInputDialog(null,"Introduzca el puerto ");
-        Envia evento = new Envia();
+    private Envia evento;
+
+    public Ventana() {
+        String portTitle = JOptionPane.showInputDialog(null, "Introduzca el puerto ");
+        evento = new Envia();
         fram = new JFrame();
         contentPane = new JPanel();
         fram.setTitle(portTitle);
@@ -50,7 +53,7 @@ public class Ventana extends Thread{
         fram.setLocationRelativeTo(null);
         fram.setDefaultCloseOperation(EXIT_ON_CLOSE);
         port = Integer.parseInt(portTitle);
-        
+
         //Creando carpeta asociada al puerto
         path = "C:/FTP_R2/" + portTitle;
         File directorio = new File(path);
@@ -61,8 +64,6 @@ public class Ventana extends Thread{
                 System.out.println("Error al crear directorio");
             }
         }
-        
-        ServiceMulticast.service_SerRMI(path, port, logArea);
 
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         fram.setContentPane(contentPane);
@@ -73,11 +74,11 @@ public class Ventana extends Thread{
         nodoA = new JLabel("Prev: 5000");
         nodoA.setBounds(40, 25, 80, 25);
         contentPane.add(nodoA);
-        
+
         nodoS = new JLabel("Next: 5002");
         nodoS.setBounds(130, 25, 80, 25);
         contentPane.add(nodoS);
-        
+
         lista = new JComboBox();
         lista.setBounds(220, 25, 100, 25);
         contentPane.add(lista);
@@ -98,28 +99,52 @@ public class Ventana extends Thread{
 
         fram.setVisible(true);
     }
-    
-    private class Envia implements ActionListener {
+
+    public class Envia implements ActionListener {
+
+        String ho;
+        int po;
+
+        public String getHo() {
+            return ho;
+        }
+
+        public void setHo(String ho) {
+            this.ho = ho;
+        }
+
+        public int getPo() {
+            return po;
+        }
+
+        public void setPo(int po) {
+            this.po = po;
+        }
+
+        public Envia() {
+            ho = "127.0.0.1";
+            po = 9000;
+        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             Object botonPulsado = e.getSource();
             if (botonPulsado == buscarB) {
-                    ServiceMulticast.service_CliRMI(path, Integer.parseInt(nodoS.getText()), textF.getText());
+                ServiceMulticast.service_CliRMI(ho, po, textF.getText(), logArea);
             }
         }
     }
-    
+
     @Override
-    public void run() 
-    {
+    public void run() {
         try {
-            ServiceMulticast.serviceListen(nodoA, nodoS, lista, port);
+            ServiceMulticast.service_SerRMI(path, port);
+            ServiceMulticast.serviceListen(nodoA, nodoS, lista, port, portNext, host, evento);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public static void main(String[] args) throws IOException, InterruptedException {
         //Creando interfaz
         Ventana ventana = new Ventana();

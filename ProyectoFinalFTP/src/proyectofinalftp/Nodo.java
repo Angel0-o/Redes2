@@ -185,7 +185,7 @@ class ListaNodos {
     }
     
     public String[] getIDS(){
-        String[] aux = null;
+        String[] aux = new String[size];
         for (int i = 0; i < size; i++) {
             aux[i] = lista[i].getID();
         }
