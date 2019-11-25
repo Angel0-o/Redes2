@@ -62,7 +62,7 @@ public class Ventana extends Thread{
             }
         }
         
-        
+        ServiceMulticast.service_SerRMI(path, port, logArea);
 
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         fram.setContentPane(contentPane);
