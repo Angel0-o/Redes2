@@ -6,9 +6,11 @@
 package proyectofinalftp;
 
 import java.io.File;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
+import javax.swing.JTextPane;
 
 /**
  *
@@ -17,9 +19,47 @@ import java.rmi.server.UnicastRemoteObject;
 public class ServerRMI implements Archivos {
 
     private String path;
+    private int myPort;
+    private int portNext;
+    private JTextPane logArea;
 
-    public ServerRMI(String p, int puerto) {
+    public JTextPane getLogArea() {
+        return logArea;
+    }
+
+    public void setLogArea(JTextPane logArea) {
+        this.logArea = logArea;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public int getMyPort() {
+        return myPort;
+    }
+
+    public void setMyPort(int myPort) {
+        this.myPort = myPort;
+    }
+
+    public int getPortNext() {
+        return portNext;
+    }
+
+    public void setPortNext(int portNext) {
+        this.portNext = portNext;
+    }
+
+    public ServerRMI(String p, int pu, int pnx, JTextPane log) {
         path = p;
+        myPort = pu;
+        portNext = pnx;
+        logArea = log;
     }
 
     public boolean searchFile(String fileF) {
@@ -29,13 +69,39 @@ public class ServerRMI implements Archivos {
                 searchFile(archivo.getAbsolutePath());
             } else {
                 File aux = archivo;
-                if(aux.getName().equals(fileF))
+                if (aux.getName().equals(fileF)) {
                     return true;
+                }
             }
         }
         return false;
     }
-    
+
+    public void askFor(String fileF) {
+        String msg;
+        logArea.setText("Searching...");
+        if (searchFile(fileF)) {
+            msg = fileF + " -> Found on : " + myPort;
+            logArea.setText(msg);
+        } else {
+            msg = fileF + " -> Not Found on : " + myPort;
+            logArea.setText(msg);
+            startCliRMI(fileF);
+        }
+    }
+
+    public void startCliRMI(String fileF) {
+        try {
+            Registry registro = LocateRegistry.getRegistry("127.0.0.1", portNext);
+            //Buscar el objeto de la interfaz en el registro
+            Archivos stub = (Archivos) registro.lookup("Archivos");
+            stub.askFor(fileF);
+        } catch (NotBoundException | RemoteException e) {
+            System.out.println("Excepcion en el cliente RMI");
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             //java.rmi.registry.LocateRegistry.createRegistry(1099);
@@ -46,13 +112,13 @@ public class ServerRMI implements Archivos {
         }
         try {
             System.setProperty("java.rmi.server.codebase", "file:/C:/temp/archivos");
-            ServerRMI obj = new ServerRMI("C:/FTP_R2/9000", 9000);
+//            ServerRMI obj = new ServerRMI("C:/FTP_R2/9000", 9000);
             // Busca objeto de la interfaz en el registro 
-            Archivos stub = (Archivos) UnicastRemoteObject.exportObject(obj, 0);
+//            Archivos stub = (Archivos) UnicastRemoteObject.exportObject(obj, 0);
             //Creamos el registro y o ponemos a escuchar en el puerto
             Registry registro = LocateRegistry.createRegistry(9000);
             //Ligamos el objeto remoto en el registro
-            registro.bind("Archivos", stub);
+//            registro.bind("Archivos", stub);
             System.out.println("Servidor Listo..");
         } catch (Exception e) {
         }

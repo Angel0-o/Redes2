@@ -42,10 +42,12 @@ public class Ventana extends Thread {
     private String host;
     private String path;
     private Envia evento;
+    private ServerRMI serRMI;
 
     public Ventana() {
         String portTitle = JOptionPane.showInputDialog(null, "Introduzca el puerto ");
         evento = new Envia();
+        serRMI = new ServerRMI(path, port,portNext,logArea);
         fram = new JFrame();
         contentPane = new JPanel();
         fram.setTitle(portTitle);
@@ -122,8 +124,6 @@ public class Ventana extends Thread {
         }
 
         public Envia() {
-            ho = "127.0.0.1";
-            po = 9000;
         }
 
         @Override
@@ -138,8 +138,8 @@ public class Ventana extends Thread {
     @Override
     public void run() {
         try {
-            ServiceMulticast.service_SerRMI(path, port);
-            ServiceMulticast.serviceListen(nodoA, nodoS, lista, port, portNext, host, evento);
+            ServiceMulticast.service_SerRMI(path, logArea, serRMI);
+            ServiceMulticast.serviceListen(nodoA, nodoS, lista, port, portNext, host, evento, serRMI);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
         }

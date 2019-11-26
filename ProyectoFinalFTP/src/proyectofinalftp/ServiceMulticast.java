@@ -42,7 +42,7 @@ import proyectofinalftp.Ventana.Envia;
  */
 public class ServiceMulticast {
 
-    public static void serviceListen(JLabel nodoA, JLabel nodoS, JComboBox lista, int myPort, int portNext, String host, Envia evento) throws IOException, InterruptedException {
+    public static void serviceListen(JLabel nodoA, JLabel nodoS, JComboBox lista, int myPort, int portNext, String host, Envia evento, ServerRMI SRMI) throws IOException, InterruptedException {
         InetSocketAddress remote = new InetSocketAddress("228.1.1.1", 2000);
         //Interfaz de red
         NetworkInterface netInterface = NetworkInterface.getByName("wlan3");//wlan3 | wlan3
@@ -99,10 +99,12 @@ public class ServiceMulticast {
                         lista.setModel(new DefaultComboBoxModel(nList.getIDS()));
                         evento.setHo(host);
                         evento.setPo(portNext);
+                        SRMI.setMyPort(myPort);
+                        SRMI.setPortNext(portNext);
                     }
 //                    nList.printList();
 //                    System.out.println("Conectado: " + port);
-                    System.out.println("host: " + host + " port: " + portNext);
+//                    System.out.println("host: " + host + " port: " + portNext);
                 }
             }
         }
@@ -147,16 +149,16 @@ public class ServiceMulticast {
         }
     }
 
-    public static void service_SerRMI(String path, int port) {
+    public static void service_SerRMI(String path, JTextPane logArea, ServerRMI SRMI) {
         try {
-            System.out.println("Path: " + path + " port: " + port);
+//            System.out.println("Path: " + path + " port: " + port);
             System.setProperty("java.rmi.server.codebase", "file:/C:/temp/archivos");
-            ServerRMI obj = new ServerRMI(path, port);
+//            ServerRMI obj = new ServerRMI(path, port,portNext,logArea);
             // Busca objeto de la interfaz en el registro 
-            Archivos stub = (Archivos) UnicastRemoteObject.exportObject(obj, 0);
+            Archivos stub = (Archivos) UnicastRemoteObject.exportObject(SRMI, 0);
             //Creamos el registro y o ponemos a escuchar en el puerto
 //            System.setProperty("java.rmi.server.hostname","10.100.70.48");
-            Registry registro = LocateRegistry.createRegistry(port);
+            Registry registro = LocateRegistry.createRegistry(SRMI.getMyPort());
             //Ligamos el objeto remoto en el registro
             registro.bind("Archivos", stub);
             System.out.println("Servidor RMI Listo..");
@@ -167,26 +169,27 @@ public class ServiceMulticast {
 
     public static void service_CliRMI(String host, int port, String file, JTextPane logArea) {
         try {
-            System.out.println("host: " + host + " port: " + port);
-            Registry registro = LocateRegistry.getRegistry("127.0.0.1",port);
-            System.out.println("1");
+            System.out.println(port);
+            Registry registro = LocateRegistry.getRegistry("127.0.0.1", port);
             //Buscar el objeto de la interfaz en el registro
+            System.out.println("1");
             Archivos stub = (Archivos) registro.lookup("Archivos");
             System.out.println("2");
             boolean respuesta = stub.searchFile(file);
             System.out.println("3");
             if (respuesta) {
-                logArea.setText("El archivo " + file + " se encuentra en  el nodo " + port);
+                logArea.setText(file + " -> Found on : " + port);
             } else {
-                logArea.setText("El archivo " + file + " no se encuentra en  el nodo " + port);
+                logArea.setText(file + " -> Not Found on : " + port);
+                stub.askFor(file);
             }
         } catch (NotBoundException | RemoteException e) {
-            System.out.println("Excepcion en el cliente RMI");
+            System.out.println("Excepcion en el service cliente RMI");
             e.printStackTrace();
         }
     }
-    
-    public static void service_StreamServer(){
+
+    public static void service_StreamServer() {
         try {
             ServerSocket s = new ServerSocket(7000);
 
