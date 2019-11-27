@@ -62,6 +62,8 @@ public class ServiceMulticast {
         channel.socket().bind(new InetSocketAddress(2000));
         ByteBuffer b;
         int port;
+        int wait = 0;
+        boolean flagRMI = false;
         Nodo next, prev, myNode;
         ListaNodos nList = new ListaNodos();
         String[] IDs = null;
@@ -99,12 +101,18 @@ public class ServiceMulticast {
                         lista.setModel(new DefaultComboBoxModel(nList.getIDS()));
                         evento.setHo(host);
                         evento.setPo(portNext);
+                        evento.setMypo(myPort);
                         SRMI.setMyPort(myPort);
                         SRMI.setPortNext(portNext);
+                        wait += 1;
+                        if (wait > 5 && !flagRMI) {
+                            ServiceMulticast.service_SerRMI(SRMI);
+                            flagRMI = true;
+                        }
                     }
 //                    nList.printList();
 //                    System.out.println("Conectado: " + port);
-//                    System.out.println("host: " + host + " port: " + portNext);
+//                    System.out.println("host: " + SRMI.getMyPort() + " port: " + SRMI.getPortNext());
                 }
             }
         }
@@ -149,39 +157,43 @@ public class ServiceMulticast {
         }
     }
 
-    public static void service_SerRMI(String path, JTextPane logArea, ServerRMI SRMI) {
+    public static void service_SerRMI(ServerRMI SRMI) throws InterruptedException {
         try {
-//            System.out.println("Path: " + path + " port: " + port);
+//            sleep(20000);
+            System.out.println("Path: " + SRMI.getPath() + " port: " + SRMI.getPortNext());
             System.setProperty("java.rmi.server.codebase", "file:/C:/temp/archivos");
-//            ServerRMI obj = new ServerRMI(path, port,portNext,logArea);
+            ServerRMI obj = SRMI;
             // Busca objeto de la interfaz en el registro 
-            Archivos stub = (Archivos) UnicastRemoteObject.exportObject(SRMI, 0);
+            Archivos stub = (Archivos) UnicastRemoteObject.exportObject(obj, 0);
             //Creamos el registro y o ponemos a escuchar en el puerto
-//            System.setProperty("java.rmi.server.hostname","10.100.70.48");
-            Registry registro = LocateRegistry.createRegistry(SRMI.getMyPort());
+            Registry registro = LocateRegistry.createRegistry(obj.getMyPort());
             //Ligamos el objeto remoto en el registro
             registro.bind("Archivos", stub);
             System.out.println("Servidor RMI Listo..");
         } catch (AlreadyBoundException | RemoteException e) {
             System.out.println("Excepcion en el Servidor RMI");
+            e.printStackTrace();
         }
     }
 
-    public static void service_CliRMI(String host, int port, String file, JTextPane logArea) {
+    public static void service_CliRMI(String host, int port, int myPort, String file, JTextPane logArea) {
+        String ho = "127.0.0.1";
         try {
+            String msg = "";
             System.out.println(port);
-            Registry registro = LocateRegistry.getRegistry("127.0.0.1", port);
+            Registry registro = LocateRegistry.getRegistry(ho, port);
             //Buscar el objeto de la interfaz en el registro
-            System.out.println("1");
             Archivos stub = (Archivos) registro.lookup("Archivos");
-            System.out.println("2");
             boolean respuesta = stub.searchFile(file);
-            System.out.println("3");
             if (respuesta) {
-                logArea.setText(file + " -> Found on : " + port);
+                msg+=file + " -> Found on : " + port + "<br>";
+                logArea.setText(msg);
+//                logArea.setText();
             } else {
-                logArea.setText(file + " -> Not Found on : " + port);
-                stub.askFor(file);
+                msg += file + " -> Not Found on : " + port + "<br>";
+                logArea.setText(msg);
+                msg += stub.askFor(file, myPort);
+                logArea.setText(msg);
             }
         } catch (NotBoundException | RemoteException e) {
             System.out.println("Excepcion en el service cliente RMI");
@@ -196,29 +208,7 @@ public class ServiceMulticast {
             //Iniciamos el ciclo infinito
             for (;;) {
                 Socket cl = s.accept();
-                System.out.println("Conexion establecida desde " + cl.getInetAddress() + "con Puerto " + cl.getPort());
-                DataInputStream entrada = new DataInputStream(cl.getInputStream());
-                byte[] b = new byte[1024];
-                String nombre = entrada.readUTF();
-                System.out.println("Recibimos el archivo " + nombre);
-                long tamano = entrada.readLong();
-                DataOutputStream salida = new DataOutputStream(new FileOutputStream(nombre));
-                long recibidos = 0;
-                int n, porcentaje = 0;
-
-                while (recibidos < tamano) {
-                    n = entrada.read(b);
-                    salida.write(b, 0, n);
-                    //System.out.println("Pase el write");
-                    salida.flush();
-                    recibidos = n + recibidos;
-                    porcentaje = (int) (recibidos * 100 / tamano);
-                    System.out.println("Porcentaje: " + porcentaje + "%\r");
-                }//While
-                System.out.println("Archivo recibido");
-                salida.close();
-                entrada.close();
-                cl.close();
+                
             }//For
         } catch (IOException ex) {
             ex.printStackTrace();

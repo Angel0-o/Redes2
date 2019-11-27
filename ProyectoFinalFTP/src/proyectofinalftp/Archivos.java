@@ -14,5 +14,5 @@ import java.rmi.RemoteException;
  */
 public interface Archivos extends Remote{
     boolean searchFile (String fileF) throws RemoteException;
-    void askFor(String fileF) throws RemoteException;
+    String askFor(String fileF, int originPort) throws RemoteException;
 }

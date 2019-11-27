@@ -95,7 +95,7 @@ class ListaNodos {
                 size = last + 1;
                 lista[pointer] = node;
             } else {
-                System.out.println("Nodo existente");
+//                System.out.println("Nodo existente");
             }
         }
     }

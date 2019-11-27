@@ -77,25 +77,37 @@ public class ServerRMI implements Archivos {
         return false;
     }
 
-    public void askFor(String fileF) {
-        String msg;
-        logArea.setText("Searching...");
+    public String askFor(String fileF, int originPort) {
+        String msg = "X_X";
+        msg+="Searching...";
+        logArea.setText(msg);
+        System.out.println("Searching....");
         if (searchFile(fileF)) {
             msg = fileF + " -> Found on : " + myPort;
             logArea.setText(msg);
+            System.out.println(msg + "<br>");
+//            if(originPort != myPort)
+//                startCliRMI(fileF,originPort);
+            return msg;
         } else {
             msg = fileF + " -> Not Found on : " + myPort;
             logArea.setText(msg);
-            startCliRMI(fileF);
+            System.out.println(msg + "<br>");
+            startCliRMI(fileF, originPort);
         }
+        return msg;
     }
 
-    public void startCliRMI(String fileF) {
+    public void startCliRMI(String fileF, int originPort) {
         try {
+            String resp, aux;
             Registry registro = LocateRegistry.getRegistry("127.0.0.1", portNext);
             //Buscar el objeto de la interfaz en el registro
             Archivos stub = (Archivos) registro.lookup("Archivos");
-            stub.askFor(fileF);
+            resp = stub.askFor(fileF,originPort);
+            aux = logArea.getText();
+            logArea.setText(portNext + " : " +resp);
+//            logArea.add(resp, logArea);
         } catch (NotBoundException | RemoteException e) {
             System.out.println("Excepcion en el cliente RMI");
             e.printStackTrace();

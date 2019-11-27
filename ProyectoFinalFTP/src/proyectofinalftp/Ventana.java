@@ -47,7 +47,6 @@ public class Ventana extends Thread {
     public Ventana() {
         String portTitle = JOptionPane.showInputDialog(null, "Introduzca el puerto ");
         evento = new Envia();
-        serRMI = new ServerRMI(path, port,portNext,logArea);
         fram = new JFrame();
         contentPane = new JPanel();
         fram.setTitle(portTitle);
@@ -100,12 +99,22 @@ public class Ventana extends Thread {
         contentPane.add(logArea);
 
         fram.setVisible(true);
+        serRMI = new ServerRMI(path, port,portNext,logArea);
     }
 
     public class Envia implements ActionListener {
 
         String ho;
         int po;
+        int mypo;
+
+        public int getMypo() {
+            return mypo;
+        }
+
+        public void setMypo(int mypo) {
+            this.mypo = mypo;
+        }
 
         public String getHo() {
             return ho;
@@ -130,7 +139,7 @@ public class Ventana extends Thread {
         public void actionPerformed(ActionEvent e) {
             Object botonPulsado = e.getSource();
             if (botonPulsado == buscarB) {
-                ServiceMulticast.service_CliRMI(ho, po, textF.getText(), logArea);
+                ServiceMulticast.service_CliRMI(ho, po, mypo, textF.getText(), logArea);
             }
         }
     }
@@ -138,7 +147,6 @@ public class Ventana extends Thread {
     @Override
     public void run() {
         try {
-            ServiceMulticast.service_SerRMI(path, logArea, serRMI);
             ServiceMulticast.serviceListen(nodoA, nodoS, lista, port, portNext, host, evento, serRMI);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
