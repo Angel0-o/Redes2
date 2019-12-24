@@ -89,9 +89,11 @@ public class ServiceMulticast {
                     } else {
                         myNode = null;
                     }
+                    //Se añaden los nodos y se ordenan
                     Nodo n1 = new Nodo(host, port);
                     nList.add(n1);
                     nList.quicksort(0, nList.size - 1);
+                    //aquí comienzan a establecerse el nodo previo y siguiente
                     if (myNode != null) {
                         next = nList.getNext(myNode);
                         prev = nList.getPrev(myNode);
@@ -104,6 +106,7 @@ public class ServiceMulticast {
                         evento.setMypo(myPort);
                         SRMI.setMyPort(myPort);
                         SRMI.setPortNext(portNext);
+                        //Parte donde se espera a ejecutar el Servidor RMI
                         wait += 1;
                         if (wait > 5 && !flagRMI) {
                             ServiceMulticast.service_SerRMI(SRMI);
